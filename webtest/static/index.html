@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade History Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Trade History Dashboard</h1>
+            <p class="subtitle">Upload & Process Trade Data with JISDOR Exchange Rate</p>
+        </header>
+
+        <main>
+            <!-- Step 1: Upload Files -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>1️⃣ Upload Files</h2>
+                </div>
+                <div class="card-body">
+                    <!-- JISDOR File Upload -->
+                    <div class="upload-section">
+                        <h3>📈 JISDOR Exchange Rate File</h3>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="jisdorFile" accept=".xlsx,.xls" class="file-input">
+                            <label for="jisdorFile" class="file-label">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Choose JISDOR File</span>
+                            </label>
+                        </div>
+                        <div id="jisdorFileInfo" class="file-info"></div>
+                    </div>
+
+                    <!-- Trade History Files Upload -->
+                    <div class="upload-section">
+                        <h3>📊 Trade History Files</h3>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="tradeFiles" accept=".xlsx,.xls" multiple class="file-input">
+                            <label for="tradeFiles" class="file-label">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Choose Trade History Files (multiple)</span>
+                            </label>
+                        </div>
+                        <div id="tradeFilesInfo" class="file-info"></div>
+                    </div>
+
+                    <button id="uploadBtn" class="btn btn-primary">Upload Files</button>
+                </div>
+            </section>
+
+            <!-- Step 2: Configure Settings -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>2️⃣ Configure Settings</h2>
+                </div>
+                <div class="card-body">
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="rateSpot">Rate Spot (Rp)</label>
+                            <input type="number" id="rateSpot" value="5000000" step="100000" class="form-control">
+                            <small>Default: 5,000,000</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="rateRemote">Rate Remote (Rp)</label>
+                            <input type="number" id="rateRemote" value="3500000" step="100000" class="form-control">
+                            <small>Default: 3,500,000</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Uploaded Files List -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>3️⃣ Uploaded Files</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="refreshFilesBtn" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+                        <button id="cleanupFilesBtn" class="btn btn-danger btn-sm">🗑️ Cleanup All</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="uploadedFilesList" class="files-list">
+                        <p class="empty-state">No files uploaded yet</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4: Process Data -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>4️⃣ Process Data</h2>
+                </div>
+                <div class="card-body">
+                    <div class="process-section">
+                        <p>Select files from the uploaded list and click Process to generate dashboard</p>
+                        <div id="selectedFilesInfo" class="selected-info"></div>
+                        <button id="processBtn" class="btn btn-success" disabled>Process Data</button>
+                    </div>
+                    <div id="processLog" class="process-log"></div>
+                </div>
+            </section>
+
+            <!-- Step 5: Download Results -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>5️⃣ Download Results</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="refreshOutputsBtn" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+                        <button id="cleanupOutputsBtn" class="btn btn-danger btn-sm">🗑️ Cleanup Results</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="outputFilesList" class="files-list">
+                        <p class="empty-state">No output files yet</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2025 Trade History Dashboard | Built with Go + Python</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
