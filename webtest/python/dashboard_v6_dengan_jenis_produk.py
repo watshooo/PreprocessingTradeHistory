@@ -38,19 +38,19 @@ def ekstrak_jenis_produk(contract_name):
 # === 1️⃣ Fungsi Bantu Perhitungan === #
 def hitung_NV(row):
     price = row['Price']
-    lot = row['Vol(LOT)']
+    lot = row['Close Vol']
     if pd.isna(price) or pd.isna(lot):
         return np.nan
     return float(lot) * CONTRACT_SIZE_PER_LOT * float(price)
 
 def hitung_contract_size(row):
-    lot = row['Vol(LOT)']
+    lot = row['Trade Vol']
     if pd.isna(lot):
         return np.nan
     return float(lot) * CONTRACT_SIZE_PER_LOT
 
 def hitung_margin(row, rate_spot, rate_remote):
-    lot = row['Vol(LOT)']
+    lot = row['Trade Vol']
     date_trade = row['DateTrade']
     contract_suffix = str(row['Contract']).split('-')[-1]
 
@@ -73,10 +73,10 @@ def hitung_margin(row, rate_spot, rate_remote):
         else:
             margin_per_sisi = lot * rate_remote
         
-        return margin_per_sisi * 2
+        return margin_per_sisi * 1
         
     except Exception:
-        return lot * rate_remote * 2
+        return lot * rate_remote * 1
 
 def cari_kolom(nama_kolom, df, return_letter=False):
     if nama_kolom in df.columns:
@@ -135,14 +135,15 @@ def process_file(file_path, kurs_df, rate_spot=5_000_000, rate_remote=3_500_000)
     df = df[1:].reset_index(drop=True)
 
     df.columns = [
-        'DateTrade', 'Trade ID', 'Contract', 'Acc.Buy', 'Mbr.Buy',
-        'Acc.Sell', 'Mbr.Sell', 'Currency', 'Price', 'Unit',
-        'Vol(LOT)', 'ClosePosition'
+        'DateTrade', 'Trade ID', 'Contract', 'Acc', 'Buy Sell',
+        'Trade Vol', 'Price', 'Close Vol', 'Close Settle', 'Fee Trade',
+        'Overnight'
     ]
 
     df['DateTrade'] = pd.to_datetime(df['DateTrade'])
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce')
-    df['Vol(LOT)'] = pd.to_numeric(df['Vol(LOT)'], errors='coerce')
+    df['Close Vol'] = pd.to_numeric(df['Close Vol'], errors='coerce')
+    df['Trade Vol'] = pd.to_numeric(df['Trade Vol'], errors='coerce')
     
     # ✨ TAMBAHAN: Ekstrak Jenis_Produk dari Contract
     df['Jenis_Produk'] = df['Contract'].apply(ekstrak_jenis_produk)
@@ -193,9 +194,9 @@ def buat_rekap_volume(dashboard_df):
     dashboard_df['Bulan_Num'] = dashboard_df['DateTrade'].dt.month
     dashboard_df['Tahun'] = dashboard_df['DateTrade'].dt.year
     
-    rekap = dashboard_df.groupby('Bulan_Num')['Vol(LOT)'].sum().reset_index()
+    rekap = dashboard_df.groupby('Bulan_Num')['Trade Vol'].sum().reset_index()
     rekap['Bulan'] = rekap['Bulan_Num'].map(MONTH_NAME_ID)
-    rekap = rekap[['Bulan', 'Vol(LOT)']].rename(columns={'Vol(LOT)': 'Volume_Lot'})
+    rekap = rekap[['Bulan', 'Trade Vol']].rename(columns={'Trade Vol': 'Volume_Lot'})
     
     total_volume = rekap['Volume_Lot'].sum()
     total_row = pd.DataFrame({'Bulan': ['Total'], 'Volume_Lot': [total_volume]})
@@ -218,9 +219,9 @@ def buat_breakdown_volume(dashboard_df):
     dashboard_df['Jenis_Produk'] = dashboard_df['Contract'].apply(ekstrak_jenis_produk)
     dashboard_df['Tahun'] = dashboard_df['DateTrade'].dt.year
     
-    breakdown = dashboard_df.groupby(['Jenis_Produk', 'Tahun'])['Vol(LOT)'].sum().reset_index()
+    breakdown = dashboard_df.groupby(['Jenis_Produk', 'Tahun'])['Trade Vol'].sum().reset_index()
     
-    pivot = breakdown.pivot(index='Jenis_Produk', columns='Tahun', values='Vol(LOT)').fillna(0)
+    pivot = breakdown.pivot(index='Jenis_Produk', columns='Tahun', values='Trade Vol').fillna(0)
     pivot = pivot.sort_index(axis=1)
     list_tahun = sorted(pivot.columns.tolist())
     
